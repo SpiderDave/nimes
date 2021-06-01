@@ -327,25 +327,45 @@ op brk: # Force interrupt
   cpu.pc = mem.read16(0xFFFE)
 
 # Illegal opcodes
-op ahx: discard
-op alr: discard
-op anc: discard
-op arr: discard
-op axs: discard
-op dcp: discard
-op isc: discard
-op kil: discard
-op las: discard
-op lax: discard
-op rla: discard
-op rra: discard
-op sax: discard
-op shx: discard
-op shy: discard
-op slo: discard
-op sre: discard
-op tas: discard
-op xaa: discard
+op ahx: echo "ahx"
+op alr: echo "alr"
+op anc: echo "anc"
+op arr: echo "arr"
+op axs: echo "axs"
+op dcp: echo "dcp"
+#op isc: discard
+#op kil: echo "kil"
+op las: echo "las"
+#op lax: discard
+op rla: echo "rla"
+op rra: echo "rra"
+#op sax: discard
+op shx: echo "shx"
+op shy: echo "shy"
+op slo: echo "slo"
+op sre: echo "sre"
+op tas: echo "tas"
+op xaa: echo "xaa"
+
+op kil:
+  echo "kil opcode; resetting"
+  cpu.reset()
+
+op lax, cpu.a: # Load accumulator, transfer to x
+  #echo "lax"
+  cpu.a = mem[info.address]
+  cpu.x = cpu.a
+
+op isc, val: # Increment memory, sbc value
+  #echo "isc"
+  let val = mem[info.address] + 1
+  mem[info.address] = val
+  cpu.a = cpu.a - val
+
+op sax, cpu.a: # Store bitwise AND of a and x
+  #echo "sax"
+  mem[info.address] = cpu.a and cpu.x
+  
 
 let
   instructions: array[uint8, proc] = [ # All 6502 instructions
