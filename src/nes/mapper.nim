@@ -1,4 +1,4 @@
-import types, mapper1, mapper2, mapper3, mapper4, mapper7
+import types, mapper1, mapper2, mapper3, mapper4, mapper7, mapper30
 
 proc newMapper*(nes: NES): Mapper =
   result = case nes.cartridge.mapper
@@ -7,6 +7,7 @@ proc newMapper*(nes: NES): Mapper =
   of 3: newMapper3(nes.cartridge)
   of 4: newMapper4(nes.cartridge, nes)
   of 7: newMapper7(nes.cartridge)
+  of 30: newMapper30(nes.cartridge)
   else: raise newException(ValueError, "unknown mapper " & $nes.cartridge.mapper)
 
 template step*(m: Mapper) = 

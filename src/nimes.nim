@@ -50,9 +50,24 @@ const keys = [
 
 let pitch = cint(resolution.x * sizeof(Color))
 
+type
+  JoyMap* = object
+    A*:uint32
+    B*:uint32
+    Select*:uint32
+    Start*:uint32
+    Up*:uint32
+    Down*:uint32
+    Left*:uint32
+    Right*:uint32
+
 var
   controllers: array[2, JoystickPtr]
   nesConsole: NES
+  joyMap: array[2, JoyMap]
+
+joyMap[0] = JoyMap(A: 2, B: 3, Select: 8, Start: 9, Up: 4, Down: 5, Left: 7, Right: 6)
+joyMap[1] = JoyMap(A: 2, B: 3, Select: 8, Start: 9, Up: 4, Down: 5, Left: 7, Right: 6)
 
 try:
   when defined(android):
@@ -234,20 +249,41 @@ proc loop {.cdecl.} =
         controllers[e.which].joystickClose()
     of JoyButtonDown:
       let e = evt.jbutton()
-      case e.button # TODO: Proper, configurable joystick support
-      of 0: buttons[e.which][0] = true
-      of 1: buttons[e.which][1] = true
-      of 8: buttons[e.which][2] = true
-      of 9: buttons[e.which][3] = true
-      else: discard
+      if e.button == joyMap[e.which].A:
+        buttons[e.which][0] = true
+      elif e.button == joyMap[e.which].B:
+        buttons[e.which][1] = true
+      elif e.button == joyMap[e.which].Select:
+        buttons[e.which][2] = true
+      elif e.button == joyMap[e.which].Start:
+        buttons[e.which][3] = true
+      elif e.button == joyMap[e.which].Up:
+        buttons[e.which][4] = true
+      elif e.button == joyMap[e.which].Down:
+        buttons[e.which][5] = true
+      elif e.button == joyMap[e.which].Left:
+        buttons[e.which][6] = true
+      elif e.button == joyMap[e.which].Right:
+        buttons[e.which][7] = true
+
     of JoyButtonUp:
       let e = evt.jbutton()
-      case e.button
-      of 0: buttons[e.which][0] = false
-      of 1: buttons[e.which][1] = false
-      of 8: buttons[e.which][2] = false
-      of 9: buttons[e.which][3] = false
-      else: discard
+      if e.button == joyMap[e.which].A:
+        buttons[e.which][0] = false
+      elif e.button == joyMap[e.which].B:
+        buttons[e.which][1] = false
+      elif e.button == joyMap[e.which].Select:
+        buttons[e.which][2] = false
+      elif e.button == joyMap[e.which].Start:
+        buttons[e.which][3] = false
+      elif e.button == joyMap[e.which].Up:
+        buttons[e.which][4] = false
+      elif e.button == joyMap[e.which].Down:
+        buttons[e.which][5] = false
+      elif e.button == joyMap[e.which].Left:
+        buttons[e.which][6] = false
+      elif e.button == joyMap[e.which].Right:
+        buttons[e.which][7] = false
     #of JoyAxisMotion:
     #  let e = evt.jaxis()
     of JoyHatMotion:
