@@ -4,6 +4,8 @@ import
   sdl2, sdl2/audio, sdl2/joystick,
   strutils
 
+import nes/save
+
 import parsecfg
 
 if not fileExists "config.ini":
@@ -43,6 +45,7 @@ else:
     reverse = false
     reverseReset = false
     rewind = newRewinder()
+    saveState = newSaveState()
 
   const samples = 2048
 
@@ -226,8 +229,18 @@ proc loop {.cdecl.} =
       break
     of KeyDown:
       let e = evt.key()
-
       case e.keysym.scancode
+      of SDL_SCANCODE_F5:
+        saveState.pos = 0
+        saveState.save(nesConsole[])
+      of SDL_SCANCODE_F7:
+        saveState.pos = 0
+        if not saveState.empty:
+          nesConsole[] = saveState.load()
+      of SDL_SCANCODE_ESCAPE:
+        echo "quit"
+        runGame = false
+        break
       of SDL_SCANCODE_1..SDL_SCANCODE_5:
         let factor = e.keysym.scancode.cint - SDL_SCANCODE_1.cint + 1
         window.setSize(resolution.x * factor, resolution.y * factor)
