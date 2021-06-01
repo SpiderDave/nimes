@@ -1,7 +1,30 @@
 import
   rewinder, nes,
   os, times, algorithm,
-  sdl2, sdl2/audio, sdl2/joystick
+  sdl2, sdl2/audio, sdl2/joystick,
+  strutils
+
+import parsecfg
+
+if not fileExists "config.ini":
+  var cfg=newConfig()
+  cfg.writeConfig("config.ini")
+  
+  # defaults
+  cfg.setSectionKey("main","scale", "2")
+  cfg.setSectionKey("main","hideCursor", "0")
+  
+  cfg.writeConfig("config.ini")
+
+proc getCfg_cint(cfg: Config, k: string):cint =
+  return cast[cint](parseInt(cfg.getSectionValue("main",k)))
+proc getCfg_bool(cfg: Config, k: string):bool =
+  return cast[bool](parseInt(cfg.getSectionValue("main",k)))
+
+# ToDo: Try and prevent bad config values
+var cfg = loadConfig("config.ini")
+var scale = getCfg_cint(cfg, "scale")
+var hideCursor = getCfg_bool(cfg, "hideCursor")
 
 when defined(emscripten):
   proc emscripten_set_main_loop(fun: proc() {.cdecl.}, fps,
@@ -101,7 +124,7 @@ discard joystickEventState(SDL_ENABLE)
 
 let
   window = createWindow(title, SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED, resolution.x, resolution.y, windowProps)
+    SDL_WINDOWPOS_CENTERED, resolution.x * scale, resolution.y * scale, windowProps)
 
   renderer = createRenderer(window, -1,
     Renderer_Accelerated or Renderer_PresentVsync or Renderer_TargetTexture)
@@ -111,7 +134,9 @@ let
 
 # auto-scaling and letterboxing
 discard renderer.setLogicalSize(resolution.x, resolution.y)
-discard showCursor(false)
+
+if hideCursor == true:
+  discard showCursor(false)
 
 #when defined(emscripten):
 #  var
